@@ -4,7 +4,7 @@ from unittest import TestCase
 from FileHandling import *
 
 
-class Test(TestCase):
+class TestFileHandling(TestCase):
     def test_CreateFileIfNotExist(self):
         os.mkdir("tempPath")
         self.addCleanup(lambda: shutil.rmtree("tempPath"))
@@ -54,7 +54,6 @@ class Test(TestCase):
         createFilesIfNotExist("tempPath/1-name1")  # just leave it for this time
         createFilesIfNotExist("tempPath/2-name2")
         createFilesIfNotExist("tempPath/3-name3")
-        # id based case
         files = getFilesByString("2", "tempPath/")
         self.assertEqual(1, len(files))
         self.assertEqual("2-name2", files[0])

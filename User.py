@@ -3,12 +3,13 @@ from typing import List
 import FileHandling
 
 
+# todo add validateUser thing
 class User:
 
-    def __init__(self, userId=None, name="", phoneNo="", address="", email="", isBookIssued=False):
-        # userId is none when we want to add new user
+    def __init__(self, userId=None, name="", phoneNo="", email="", address="", isBookIssued=False):
+        # userId is none when we want to add new user And search
         # phone will be a string currently
-        self.userId = userId
+        self.userId = None if userId is None else int(userId)
         self.name = name
         self.phoneNo = phoneNo
         self.address = address
@@ -18,7 +19,20 @@ class User:
     def addUser(self):
         if self.isBookIssued:
             raise Exception("New User cannot have issued Book before hand...")
+        self.userId = self._getCount()
         self._writeFirstLine()
+
+    @staticmethod
+    def _getCount() -> int:
+        count = 0
+        try:
+            count = int(FileHandling.readFirstLine("users/count"))
+            FileHandling.writeFirstLine(str(count + 1), "users/count")
+        except IOError:
+            # file does not exist case
+            FileHandling.writeFirstLine("0", "users/count")
+        finally:
+            return count
 
     def updateUserData(self):
         self._writeFirstLine()
@@ -29,12 +43,13 @@ class User:
             return False
 
         if not self.name:
-            self._setUserNameFromId()
+            self.name = self._getUserNameFromId()
 
         self._readFirstLine()
         return True
 
-    def searchUsers(self) -> List[User]:
+    def searchUsers(self) -> 'List[User]':
+        # Reason why '' around List[User] -> https://stackoverflow.com/questions/15741887
         files = FileHandling.getFilesByString(self.name, "users/")
         users: List[User] = list()
         for file in files:
@@ -53,16 +68,21 @@ class User:
         filename = "users/{}-{}".format(self.userId, self.name)  # filename = users/userId-username
         firstLine = FileHandling.readFirstLine(filename)
         items = firstLine.split("====")
-        if self.userId != items[0]:
+        if self.userId != int(items[0]):
             raise Exception("UserId Not Matched with FileName....")
 
         self.phoneNo = items[2]
         self.email = items[3]
         self.address = items[4]
-        self.isBookIssued = bool(items[5])
+        self.isBookIssued = bool(int(items[5]))
 
-    def _setUserNameFromId(self):
-        files = FileHandling.getFilesByString(self.userId, "users/")
+    def _getUserNameFromId(self) -> str:
+        files = FileHandling.getFilesByString(str(self.userId), "users/")
         if len(files) > 1:
             raise Exception("Error More than One files with Same UserId")
-        self.name = files[0].split("-")[1]
+        return files[0].split("-")[1]
+
+    def __eq__(self, other: object) -> bool:
+        if type(other) is type(self):
+            return self.__dict__ == other.__dict__
+        return False
