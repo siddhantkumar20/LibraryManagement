@@ -1,5 +1,6 @@
 import os
 from fileinput import FileInput
+from typing import List
 
 
 def createFilesIfNotExist(filePath: str):
@@ -101,3 +102,12 @@ def readLineBySpecifiedId(filePath: str, Id: str):
 def readContinuousLines(filePath: str, count: int = 10, shouldSkipFirstLine: bool = False):
     # will create this function when needed
     pass
+
+
+def getFilesByString(string: str, folderPath: str) -> List[str]:
+    # have not added sorting to this.
+    files: List[str] = list()
+    for file in os.listdir(folderPath):
+        if string in file:
+            files.append(file)
+    return files

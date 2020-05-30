@@ -46,3 +46,17 @@ class Test(TestCase):
         testString = "3====Name====12345678910====email@ex.com====h 43, Delhi"
         writeLineBySpecifiedId(testString, filename, "3")
         self.assertEqual(testString, readLineBySpecifiedId(filename, "3"))
+
+    def test_getFilesByString(self):
+        os.mkdir("tempPath")
+        self.addCleanup(lambda: shutil.rmtree("tempPath"))
+        createFilesIfNotExist("tempPath/0-name0")  # I should not use this function to create files but
+        createFilesIfNotExist("tempPath/1-name1")  # just leave it for this time
+        createFilesIfNotExist("tempPath/2-name2")
+        createFilesIfNotExist("tempPath/3-name3")
+        # id based case
+        files = getFilesByString("2", "tempPath/")
+        self.assertEqual(1, len(files))
+        self.assertEqual("2-name2", files[0])
+        files = getFilesByString("name", "tempPath/")
+        self.assertEqual(4, len(files))
