@@ -26,11 +26,11 @@ class User:
     def _getCount() -> int:
         count = 0
         try:
-            count = int(FileHandling.readFirstLine("users/count"))
-            FileHandling.writeFirstLine(str(count + 1), "users/count")
+            count = int(FileHandling.readFirstLine("{}count".format(FileHandling.getFolderPath("users", ))))
+            FileHandling.writeFirstLine(str(count + 1), "{}count".format(FileHandling.getFolderPath("users", )))
         except IOError:
             # file does not exist case
-            FileHandling.writeFirstLine("0", "users/count")
+            FileHandling.writeFirstLine("0", "{}count".format(FileHandling.getFolderPath("users", )))
         finally:
             return count
 
@@ -50,7 +50,7 @@ class User:
 
     def searchUsers(self) -> 'List[User]':
         # Reason why '' around List[User] -> https://stackoverflow.com/questions/15741887
-        files = FileHandling.getFilesByString(self.name, "users/")
+        files = FileHandling.getFilesByString(self.name, FileHandling.getFolderPath("users", ))
         users: List[User] = list()
         for file in files:
             data = file.split("-")
@@ -58,14 +58,17 @@ class User:
         return users
 
     def _writeFirstLine(self):
-        filename = "users/{}-{}".format(self.userId, self.name)  # filename = users/userId-username
+        filename = "{}{}-{}".format(FileHandling.getFolderPath("users", ), self.userId,
+                                    self.name)  # filename = users/userId-username
         # stringToWrite = "1====Name====123456====email@ex.com====h 43, Delhi====0"
         stringToWrite = "{}===={}===={}===={}===={}===={}".format(self.userId, self.name, self.phoneNo, self.email,
                                                                   self.address, int(self.isBookIssued))
         FileHandling.writeFirstLine(stringToWrite, filename)
 
     def _readFirstLine(self):
-        filename = "users/{}-{}".format(self.userId, self.name)  # filename = users/userId-username
+        filename = "{}{}-{}".format(FileHandling.getFolderPath("users", ), self.userId,
+                                    self.name)
+        # filename = users/userId-username
         firstLine = FileHandling.readFirstLine(filename)
         items = firstLine.split("====")
         if self.userId != int(items[0]):
@@ -77,7 +80,7 @@ class User:
         self.isBookIssued = bool(int(items[5]))
 
     def _getUserNameFromId(self) -> str:
-        files = FileHandling.getFilesByString(str(self.userId), "users/")
+        files = FileHandling.getFilesByString(str(self.userId), FileHandling.getFolderPath("users", ))
         if len(files) > 1:
             raise Exception("Error More than One files with Same UserId")
         return files[0].split("-")[1]

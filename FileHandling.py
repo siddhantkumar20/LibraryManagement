@@ -1,10 +1,44 @@
 import os
+import sys
 from fileinput import FileInput
 from typing import List
 
+# handling With plat dependent code
+
+CONST_SLASH = ""
+
+
+def _setSlash():
+    global CONST_SLASH
+    if sys.platform == "linux" or sys.platform == "linux2":
+        CONST_SLASH = "/"
+    elif sys.platform == "darwin":
+        CONST_SLASH = "/"
+    elif sys.platform == "win32":
+        CONST_SLASH = "\\"
+    else:  # unknown so return universal directory separator
+        CONST_SLASH = "/"
+
+
+def getFolderPath(*args):
+    # folder names passed as arguments
+    # return something like foldername1/foldername2/foldername3/ on linux
+    # return something like foldername1\\foldername2\\foldername3\\ on Windows
+    if not CONST_SLASH:
+        _setSlash()
+    currentPath = ""
+    for folder in args:
+        currentPath = currentPath + folder + CONST_SLASH
+
+    return currentPath
+
+
+#
 
 def createFilesIfNotExist(filePath: str):
-    lastIndex = filePath.rfind('/')
+    if not CONST_SLASH:
+        _setSlash()
+    lastIndex = filePath.rfind(CONST_SLASH)
     if lastIndex == (len(filePath) - 1):
         raise Exception("File cannot be a directory")
 
@@ -17,7 +51,7 @@ def createFilesIfNotExist(filePath: str):
             pass
         return
 
-    currentIndex = filePath.find('/', 0)
+    currentIndex = filePath.find(CONST_SLASH, 0)
     # just some optimizations
     isParentFolderExist = True
     for i in range(0, len(filePath)):
@@ -28,7 +62,7 @@ def createFilesIfNotExist(filePath: str):
             isParentFolderExist = False
         if currentIndex == lastIndex:
             break
-        currentIndex = filePath.find('/', currentIndex + 1)
+        currentIndex = filePath.find(CONST_SLASH, currentIndex + 1)
 
     with open(filePath, 'w') as f:  # writing empty file
         pass

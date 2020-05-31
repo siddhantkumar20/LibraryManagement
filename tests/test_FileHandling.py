@@ -13,6 +13,11 @@ class TestFileHandling(TestCase):
         self.assertTrue(os.path.exists(fileName))
         self.assertTrue(os.path.isfile(fileName))
 
+    def test_GetFolderPath(self):
+        folderPath = "tempPath/a/b/c/d/e/"
+        self.assertEqual(folderPath, getFolderPath("tempPath", "a", "b", "c", "d", "e"))
+        self.assertEqual("users/", getFolderPath("users", ))
+
     def test_WriteAndReadFirstLine(self):
         os.mkdir("tempPath")
         self.addCleanup(lambda: shutil.rmtree("tempPath"))
